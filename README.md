@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DALOG Diagnostic Report Manager
 
-## Getting Started
+Aplicación Front-End diseñada bajo requerimientos *Enterprise* para la gestión, subida y listado de reportes de diagnóstico. Desarrollada con React, Next.js, Zustand y Tailwind CSS.
 
-First, run the development server:
+## 🚀 Cómo ejecutar el proyecto localmente
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. **Instalar dependencias:**
+   Asegúrate de tener Node.js 18+ instalado. En la raíz del proyecto ejecuta:
+   ```bash
+   npm install
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Iniciar Servidor de Desarrollo:**
+   ```bash
+   npm run dev
+   ```
+   Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Ejecutar Pruebas Unitarias (Vitest):**
+   ```bash
+   npm run test
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🏗️ Decisiones de Arquitectura y Patrones
 
-To learn more about Next.js, take a look at the following resources:
+### Arquitectura Horizontal Clásica
+El proyecto está organizado categóricamente por la responsabilidad técnica de cada archivo (`components`, `services`, `store`, `types`), proporcionando predictibilidad inmediata para cualquier desarrollador que se una al proyecto, un estándar oro en aplicaciones dinámicas de Next.js.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Patrones Aplicados y Optimizaciones
+1. **Patrón Strategy (`FileProcessor.ts`):** 
+   Se usó un patrón *Strategy* administrado por una fábrica (`FileProcessorFactory`) que desacopla la lógica de validación e ingesta. Si el día de mañana se soporta un nuevo modelo propietario además de PDF o DICOM, solo se escribe una nueva estrategia sin mutar el código principal del formulario (*Open/Closed Principle*).
+2. **Web Worker para Filtrado (`searchWorker.ts`):**
+   Dado que los reportes médicos suelen representar listas masivas, la búsqueda en tiempo real fue sacada el hilo principal (Main Thread) del navegador hacia un Worker dedicado, manteniendo la UI de React siempre a 60fps sin bloqueos.
+3. **Estado Global con Zustand:**
+   Elegido sobre Redux por su nulo *boilerplate* y alto rendimiento computacional al no requerir un `Provider` que envuelva el árbol de la aplicación.
+4. **Code Splitting (`next/dynamic`):**
+   Los componentes pesados visuales que atrapan los archivos o listas densas se cargan de forma perezosa (`lazy loading` con SSR apagado).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
